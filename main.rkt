@@ -23,10 +23,12 @@
         ((pixrgb-d? pix) (pixrgb-d-y pix))
         ((pixhex-d? pix) (pixhex-d-y pix))))
 
+(define (makelist . args) args)
 
 
-(define (image x y l)
-  (make-picture x y (list (car l) (cdr l))))
+
+(define (image x y . l)
+  (make-picture x y (makelist l)))
 
 ; ejemplos
 (define pix (pixbit-d 4 3 2 1))
