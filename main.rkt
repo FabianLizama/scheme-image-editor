@@ -50,13 +50,14 @@
 ; Dominio: [pixbit-d | pixrgb-d | pixhex-d]
 ; Recorrido: x (int)
 (define (get-x pix)
-  (car (cdr pix)))
+  (cadr pix))
 
 ; Función de selección x en común para pixbit-d pixrgb-d y pixhex-d
 ; Dominio: [pixbit-d | pixrgb-d | pixhex-d]
 ; Recorrido: y (int)
 (define (get-y pix)
-  (car (cdr (cdr pix))))
+  (caddr pix))
+
 
 
 ; Funciones principales
@@ -74,7 +75,7 @@
 
 ; Función que selecciona el alto de una imagen
 ; Dominio: image Recorrido: Height (int)
-(define (get-h pic) (car (list-ref pic 2)))
+(define (get-h pic) (list-ref pic 2))
 
 ; Función que selecciona la lista de pixeles de una imagen
 ; Dominio: image Recorrido: pixels (list)
@@ -102,8 +103,56 @@
   (cond ((= (* (get-w pic) (get-h pic)) (len (get-pixlist pic))) #f)
         (else #t)))
 
+; TDA image - flipH
+; Función que permite invertir una imágen horizontalmente
+; Se encuentra la función matemática para invertir un pixel horizontalmente (|y - (ancho-1)|)
+(define (flipH pic)
+  (image (get-w pic) (get-h pic) ; Se define el mismo largo y ancho de la imagen original
+         (mod-y-map mod-y        ; Se modifican las coordenadas "y" de la lista de pixeles de la imagen
+                    (fH-pix-map flipH-pix (map get-y (get-pixlist pic)) (get-w pic)) ; Se calculan las coordenadas "y" invertidas horizontalmente
+                    (get-pixlist pic)))) ; Obtiene la lista de pixeles para realizar las tareas de las dos lineas anteriores
+
+; Esta función calcula el valor que debería tener el "y" de un pixel al rotarlo horizontalmente
+; Dominio: y (int) X width (int)
+; Recorrido: y (int)
+(define (flipH-pix y w)
+  (abs (- y (- w 1))))
+
+; Esta función recursiva está diseñada para aplicar la función flipH-pix a una lista de coordenadas "y" de una lista de pixeles
+; Dominio: fx (flipH-pix) X lista (list) X width (int)
+; Recorrido: lista (list) -> "lista de coordenadas 'y' recalculadas"
+(define (fH-pix-map fx l w)
+  (if (null? l) null
+      (cons (fx (car l) w) (fH-pix-map fx (cdr l) w))))
+
+
+; Esta función modifica el valor y de un pixel
+; Dominio: y (int) X [pixbit-d | pixrgb-d | pixhex-d]
+; Recorrido: [pixbit-d | pixrgb-d | pixhex-d]
+(define (mod-y y pix)
+  (cond ((= 0 (car pix)) (pixbit-d (get-x pix) y (list-ref pix 3) (list-ref pix 4)))
+        ((= 1 (car pix)) (pixrgb-d (get-x pix) y (list-ref pix 3) (list-ref pix 4) (list-ref pix 5) (list-ref pix 6)))
+        ((= 2 (car pix)) (pixhex-d (get-x pix) y (list-ref pix 3) (list-ref pix 4)))))
+
+; Esta función recursiva está diseñada para aplicar la función mod-y a una lista de pixeles pertenecientes a una imagen
+; Dominio: fx (mod-y) X lista (list) X pixeles (list)   " 'lista' contiene una lista de las coordenadas 'y' recalculadas"
+; Recorrido: [pixbit-d | pixrgb-d | pixhex-d] (list)    "lista de pixeles invertidos horizontalmente"
+(define (mod-y-map fx l pixels)
+  (if (null? l) null
+      (cons (fx (car l) (car pixels)) (mod-y-map fx (cdr l) (cdr pixels)))))
+
+
+
+
+
+
+
 ; ejemplos
 (define pix (pixbit-d 4 3 1 1))
-(define ejimageb (image 2 2 (pixbit-d  0 0 1 10) (pixbit-d  0 1 0 20) (pixbit-d 1 0 0 30)))
-(define ejimager (image 1 1 (pixrgb-d 1 1 1 1 1 1)))
+(define ejimageb (image 2 2 (pixbit-d  0 0 1 10) (pixbit-d  0 1 0 20) (pixbit-d 1 0 0 30) (pixbit-d 1 1 0 30)))
+(define ejimager (image 3 3
+                        (pixrgb-d 0 0 255 0 0 0) (pixrgb-d 0 1 0 0 0 0) (pixrgb-d 0 2 0 0 255 0)
+                        (pixrgb-d 1 0 255 0 0 1) (pixrgb-d 1 1 0 0 0 1) (pixrgb-d 1 2 0 0 255 1)
+                        (pixrgb-d 2 0 255 0 0 2) (pixrgb-d 1 1 0 0 0 2) (pixrgb-d 2 2 0 0 255 2)))
+
 (define ejimageh (image 1 1 (pixhex-d 1 1 "#FF0000" 1)))
