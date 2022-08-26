@@ -105,26 +105,10 @@
 
 ; TDA image - flipH
 ; Función que permite invertir una imágen horizontalmente
-; Se encuentra la función matemática para invertir un pixel horizontalmente (|y - (ancho-1)|)
+; Se encuentra la función matemática para invertir un pixel horizontalmente (|x - (ancho-1)|)
 (define (flipH pic)
   (image (get-w pic) (get-h pic) ; Se define el mismo largo y ancho de la imagen original
-         (mod-y-map mod-y        ; Se modifican las coordenadas "y" de la lista de pixeles de la imagen
-                    (fH-pix-map flipH-pix (map get-y (get-pixlist pic)) (get-w pic)) ; Se calculan las coordenadas "y" invertidas horizontalmente
-                    (get-pixlist pic)))) ; Obtiene la lista de pixeles para realizar las tareas de las dos lineas anteriores
-
-; Esta función calcula el valor que debería tener el "y" de un pixel al rotarlo horizontalmente
-; Dominio: y (int) X width (int)
-; Recorrido: y (int)
-(define (flipH-pix y w)
-  (abs (- y (- w 1))))
-
-; Esta función recursiva está diseñada para aplicar la función flipH-pix a una lista de coordenadas "y" de una lista de pixeles
-; Dominio: fx (flipH-pix) X lista (list) X width (int)
-; Recorrido: lista (list) -> "lista de coordenadas 'y' recalculadas"
-(define (fH-pix-map fx l w)
-  (if (null? l) null
-      (cons (fx (car l) w) (fH-pix-map fx (cdr l) w))))
-
+         (recur-flip flipH-pix (get-pixlist pic) (get-w pic)))) ; Invierte la coordenada "x" de cada pixel de la lista de pixeles
 
 ; Esta función modifica el valor y de un pixel
 ; Dominio: y (int) X [pixbit-d | pixrgb-d | pixhex-d]
@@ -134,18 +118,56 @@
         ((= 1 (car pix)) (pixrgb-d (get-x pix) y (list-ref pix 3) (list-ref pix 4) (list-ref pix 5) (list-ref pix 6)))
         ((= 2 (car pix)) (pixhex-d (get-x pix) y (list-ref pix 3) (list-ref pix 4)))))
 
-; Esta función recursiva está diseñada para aplicar la función mod-y a una lista de pixeles pertenecientes a una imagen
-; Dominio: fx (mod-y) X lista (list) X pixeles (list)   " 'lista' contiene una lista de las coordenadas 'y' recalculadas"
-; Recorrido: [pixbit-d | pixrgb-d | pixhex-d] (list)    "lista de pixeles invertidos horizontalmente"
-(define (mod-y-map fx l pixels)
-  (if (null? l) null
-      (cons (fx (car l) (car pixels)) (mod-y-map fx (cdr l) (cdr pixels)))))
+(define (mod-x x pix)
+  (cond ((= 0 (car pix)) (pixbit-d x (get-y pix) (list-ref pix 3) (list-ref pix 4)))
+        ((= 1 (car pix)) (pixrgb-d x (get-y pix) (list-ref pix 3) (list-ref pix 4) (list-ref pix 5) (list-ref pix 6)))
+        ((= 2 (car pix)) (pixhex-d x (get-y pix) (list-ref pix 3) (list-ref pix 4)))))
+
+; Esta función recursiva está diseñada para aplicar la función flipH-pix a una lista de pixeles, aplica la recursión de cola
+; Dominio: fx ([flipH-pix | flipV-pix]) X pixels (list) X width (int)
+; Recorrido: pixels (list)
+(define (recur-flip fx pixels w)
+  (if (null? pixels) null
+      (cons (fx (car pixels) w) (recur-flip fx (cdr pixels) w))))
+
+
+; Esta función ajusta la posición de un pixel otorgandole la coordenada "x" correspondiente después de invertirlo horizontalmente
+; Dominio: pix ([pixbit-d | pixrgb-d | pixhex-d]) X width (int)
+; Recorrido: pix ([pixbit-d | pixrgb-d | pixhex-d])
+(define (flipH-pix pix w)
+  (mod-x (abs (- (get-x pix) (- w 1))) pix))
 
 
 
+; TDA image - flipV
+; Función que permite invertir una imágen verticalmente
+; Se encuentra la función matemática para invertir un pixel verticalmente (|x - (ancho-1)|)
+(define (flipV pic)
+  (image (get-w pic) (get-h pic) ; Se define el mismo largo y ancho de la imagen original
+         (recur-flip flipV-pix (get-pixlist pic) (get-w pic)))) ; Invierte la coordenada "x" de cada pixel de la lista de pixeles
 
 
+; Esta función ajusta la posición de un pixel otorgandole la coordenada "x" correspondiente después de invertirlo verticalmente
+; Dominio: pix ([pixbit-d | pixrgb-d | pixhex-d]) X width (int)
+; Recorrido: pix ([pixbit-d | pixrgb-d | pixhex-d])
+(define (flipV-pix pix w)
+  (mod-y (abs (- (get-y pix) (- w 1))) pix))
 
+(define (crop pic x1 y1 x2 y2)
+  (image (+ (- x2 x1) 1) (+ (- y2 y1) 1) (myfilter condi (get-pixlist pic) x1 y1 x2 y2)))
+
+(define (myfilter condition list x1 y1 x2 y2)
+  (if (null? list) null
+      (if (condi (car list) x1 y1 x2 y2)
+          (cons (car list) (myfilter condi (cdr list) x1 y1 x2 y2))
+          (myfilter condi (cdr list) x1 y1 x2 y2)
+          )))
+
+(define (condi pix x1 y1 x2 y2)
+  (if (and (and (and (>= (get-x pix) x1) (<= (get-x pix) x2)) (>= (get-y pix) y1)) (<= (get-y pix) y2)) #t #f))
+         
+(define (croppixel? pix)
+  (if ((get-x)) #t #f))
 
 ; ejemplos
 (define pix (pixbit-d 4 3 1 1))
@@ -153,6 +175,6 @@
 (define ejimager (image 3 3
                         (pixrgb-d 0 0 255 0 0 0) (pixrgb-d 0 1 0 0 0 0) (pixrgb-d 0 2 0 0 255 0)
                         (pixrgb-d 1 0 255 0 0 1) (pixrgb-d 1 1 0 0 0 1) (pixrgb-d 1 2 0 0 255 1)
-                        (pixrgb-d 2 0 255 0 0 2) (pixrgb-d 1 1 0 0 0 2) (pixrgb-d 2 2 0 0 255 2)))
+                        (pixrgb-d 2 0 255 0 0 2) (pixrgb-d 2 1 0 0 0 2) (pixrgb-d 2 2 0 0 255 2)))
 
 (define ejimageh (image 1 1 (pixhex-d 1 1 "#FF0000" 1)))
