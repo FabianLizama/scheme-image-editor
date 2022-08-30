@@ -1,4 +1,4 @@
-#lang scheme
+#lang racket
 
 (require "funciones.rkt")
 
@@ -58,6 +58,12 @@
 (define (get-y pix)
   (caddr pix))
 
+(define (get-hex pix)
+  (list-ref pix 3))
+
+(define (get-r pix) (list-ref pix 3))
+(define (get-g pix) (list-ref pix 4))
+(define (get-b pix) (list-ref pix 5))
 
 
 ; Funciones principales
@@ -153,6 +159,10 @@
 (define (flipV-pix pix w)
   (mod-y (abs (- (get-y pix) (- w 1))) pix))
 
+
+; TDA image - crop: Recortar una imagen a partir de un cuadrante
+; Dominio: image X x1 (int) X y1 (int) X x2 (int) X y2 (int)
+; Recorrido: image
 (define (crop pic x1 y1 x2 y2)
   (image (+ (- x2 x1) 1) (+ (- y2 y1) 1) (myfilter condi (get-pixlist pic) x1 y1 x2 y2)))
 
@@ -169,6 +179,30 @@
 (define (croppixel? pix)
   (if ((get-x)) #t #f))
 
+(define (imgRGB->imgHex)
+  (null))
+
+(define (pixrgb->pixhex pix)
+  (list 2 (get-x pix) (get-y pix) (string-append "#" (null)) null))
+
+(define (int->hex x)
+  (string-append
+   (cond ((< (quotient x 16) 10) (number->string (quotient x 16)))
+         ((= 10 (quotient x 16)) "A")
+         ((= 11 (quotient x 16)) "B")
+         ((= 12 (quotient x 16)) "C")
+         ((= 13 (quotient x 16)) "D")
+         ((= 14 (quotient x 16)) "E")
+         ((= 15 (quotient x 16)) "F"))
+   (cond ((< (remainder x 16) 10) (number->string (remainder x 16)))
+         ((= 10 (remainder x 16)) "A")
+         ((= 11 (remainder x 16)) "B")
+         ((= 12 (remainder x 16)) "C")
+         ((= 13 (remainder x 16)) "D")
+         ((= 14 (remainder x 16)) "E")
+         ((= 15 (remainder x 16)) "F"))))
+                      
+        
 ; ejemplos
 (define pix (pixbit-d 4 3 1 1))
 (define ejimageb (image 2 2 (pixbit-d  0 0 1 10) (pixbit-d  0 1 0 20) (pixbit-d 1 0 0 30) (pixbit-d 1 1 0 30)))
