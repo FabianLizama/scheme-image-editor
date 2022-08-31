@@ -27,6 +27,8 @@
 
 ; Funciones
 
+(define (get-bit pix) (list-ref pix 3))
+
 ; Esta función calcula el largo de una lista
 ; Dominio: l (list) Recorrido: largo (int)
 (define (len l) (length l))
@@ -98,12 +100,12 @@
 ; TDA image - pixmap?
 ; Función que permite determinar si la imagen corresponde a un pixmap-d
 ; Dominio: image Recorrido: boolean
-(define (pixmap? pic) (pixrgb-d? (car (list-ref pic 3))))
+(define (pixmap? pic) (pixrgb-d? (car (get-pixlist pic))))
 
 ; TDA image - hexmap?
 ; Función que permite determinar si la imagen corresponde a un hexmap-d
 ; Dominio: image Recorrido: boolean
-(define (hexmap? pic) (pixhex-d? (car (list-ref pic 3))))
+(define (hexmap? pic) (pixhex-d? (car (get-pixlist pic))))
 
 ; TDA image - compressed?
 ; Función que determina si una imagen está comprimida
@@ -206,7 +208,27 @@
          ((= 15 (remainder x 16)) "F"))))
 
 (define (histogram pic)
-  (cond ((bitmap? pic) (cons (null) (null)))))
+  (get-pixlist pic))
+
+(define (count-pix pix histlist)
+  (if (null? (findHex histlist (cond((pixbit-d? pix) (if (zero? (get-bit pix))
+                                                     "#000000"
+                                                     "FFFFFF"))
+                                ((pixhex-d? pix) (get-hex pix))
+                                ((pixrgb-d? pix) (pixrgb->pixhex pix)))))
+      (append histlist (list(cons (cond((pixbit-d? pix) (if (zero? (get-bit pix))
+                                                     "#000000"
+                                                     "FFFFFF"))
+                                ((pixhex-d? pix) (get-hex pix))
+                                ((pixrgb-d? pix) (pixrgb->pixhex pix))) 1)))
+      (null)))
+
+(define (findHex histlist hexcode)
+  (filter (compareHex hexcode) histlist))
+
+(define compareHex(lambda (hex1)
+                     (lambda (elem)
+                       (if (string=? hex1 (car elem)) #t #f))))
 
         
 ; ejemplos
