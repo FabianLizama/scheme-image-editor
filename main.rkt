@@ -58,6 +58,9 @@
 (define (get-y pix)
   (caddr pix))
 
+(define (get-d pix)
+  (list-ref pix (- (len pix) 1)))
+
 (define (get-hex pix)
   (list-ref pix 3))
 
@@ -179,11 +182,11 @@
 (define (croppixel? pix)
   (if ((get-x)) #t #f))
 
-(define (imgRGB->imgHex)
-  (null))
+(define (imgRGB->imgHex pic)
+  (image (get-w pic) (get-h pic) (map pixrgb->pixhex (get-pixlist pic))))
 
 (define (pixrgb->pixhex pix)
-  (list 2 (get-x pix) (get-y pix) (string-append "#" (null)) null))
+  (list 2 (get-x pix) (get-y pix) (string-append "#" (int->hex (get-r pix)) (int->hex (get-g pix)) (int->hex (get-b pix))) (get-d pix)))
 
 (define (int->hex x)
   (string-append
@@ -201,7 +204,10 @@
          ((= 13 (remainder x 16)) "D")
          ((= 14 (remainder x 16)) "E")
          ((= 15 (remainder x 16)) "F"))))
-                      
+
+(define (histogram pic)
+  (cond ((bitmap? pic) (cons (null) (null)))))
+
         
 ; ejemplos
 (define pix (pixbit-d 4 3 1 1))
