@@ -1,4 +1,4 @@
-#lang racket
+#lang scheme
 
 (require "funciones.rkt")
 
@@ -207,32 +207,45 @@
          ((= 14 (remainder x 16)) "E")
          ((= 15 (remainder x 16)) "F"))))
 
+; Esta función obtiene el código hexadecimal de cualquier pixel
+(define (pix->hex pix)
+  (cond((pixbit-d? pix) (if (zero? (get-bit pix)) "#000000" "#FFFFFF"))
+        ((pixhex-d? pix) (get-hex pix))
+        ((pixrgb-d? pix) (get-hex (pixrgb->pixhex pix)))))
+
+; TDA image - histogram
+; Retorna una lista que tiene de primer elemento el número de pixeles totales,
+; y luego pares que están conformados por el código del color y la cantidad de pixeles que poseen ese color
+; Dominio: image    Recorrido: [n (int) X ["#XXXXXX" (string) . x (int)] (pair)] (list)  
 (define (histogram pic)
-  (get-pixlist pic))
+  (recur-hist (get-pixlist pic) (list 0) (* (get-w pic) (get-h pic))))
 
+; Función recursiva de cola que aplica la función count-pix a toda una lista de pixeles
+(define (recur-hist pixels histlist n)
+  (if (= (car histlist) n) histlist
+      (recur-hist (cdr pixels) (count-pix (car pixels) histlist) n)))
+
+
+; Función que cuenta un pixel y lo agrega al histograma entregado
 (define (count-pix pix histlist)
-  (if (null? (findHex histlist (cond((pixbit-d? pix) (if (zero? (get-bit pix))
-                                                     "#000000"
-                                                     "FFFFFF"))
-                                ((pixhex-d? pix) (get-hex pix))
-                                ((pixrgb-d? pix) (pixrgb->pixhex pix)))))
-      (append histlist (list(cons (cond((pixbit-d? pix) (if (zero? (get-bit pix))
-                                                     "#000000"
-                                                     "FFFFFF"))
-                                ((pixhex-d? pix) (get-hex pix))
-                                ((pixrgb-d? pix) (pixrgb->pixhex pix))) 1)))
-      (null)))
+  (if (null? (findHex histlist (pix->hex pix)))
+      (append (append (list (+ (car histlist) 1)) (cdr histlist)) (list(cons (pix->hex pix) 1)))
+      (append
+       (append (list (+ (car histlist) 1)) (cdr (remove (car (findHex histlist (pix->hex pix))) histlist))
+       (list (cons (caar (findHex histlist (pix->hex pix))) (+ 1 (cdar (findHex histlist (pix->hex pix))))))))))
 
+; Función que encuentra el par que posee el color entregado
 (define (findHex histlist hexcode)
-  (filter (compareHex hexcode) histlist))
+  (filter (compareHex hexcode) (cdr histlist)))
 
+; Función que compara que si dos códigos hexadecimales son iguales
 (define compareHex(lambda (hex1)
                      (lambda (elem)
                        (if (string=? hex1 (car elem)) #t #f))))
 
-        
 ; ejemplos
 (define pix (pixbit-d 4 3 1 1))
+(define pixh (pixhex-d 0 0 "#FFFFFF" 1))
 (define ejimageb (image 2 2 (pixbit-d  0 0 1 10) (pixbit-d  0 1 0 20) (pixbit-d 1 0 0 30) (pixbit-d 1 1 0 30)))
 (define ejimager (image 3 3
                         (pixrgb-d 0 0 255 0 0 0) (pixrgb-d 0 1 0 0 0 0) (pixrgb-d 0 2 0 0 255 0)
