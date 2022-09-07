@@ -31,7 +31,7 @@
 
 ; Esta función calcula el largo de una lista
 ; Dominio: l (list) Recorrido: largo (int)
-(define (len l) (length l))
+(define len length)
 
 ; Función que permite determinar si un pixel es de tipo pixbit-d
 ; Dominio: [pixbit-d | pixrgb-d | pixhex-d] Recorrido: boolean
@@ -51,14 +51,12 @@
 ; Función de selección x en común para pixbit-d pixrgb-d y pixhex-d
 ; Dominio: [pixbit-d | pixrgb-d | pixhex-d]
 ; Recorrido: x (int)
-(define (get-x pix)
-  (cadr pix))
+(define get-x cadr)
 
 ; Función de selección x en común para pixbit-d pixrgb-d y pixhex-d
 ; Dominio: [pixbit-d | pixrgb-d | pixhex-d]
 ; Recorrido: y (int)
-(define (get-y pix)
-  (caddr pix))
+(define get-y caddr)
 
 (define (get-d pix)
   (list-ref pix (- (len pix) 1)))
