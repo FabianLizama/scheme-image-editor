@@ -240,6 +240,15 @@
 (define compareHex(lambda (hex1)
                      (lambda (elem)
                        (if (string=? hex1 (car elem)) #t #f))))
+; Función que rota en 90° un pixel
+
+(define pix90 (lambda (n)
+                (lambda (pix)
+                  (cond ((= (get-x pix) 0) (mod-x (- n y) (mod-y 0 pix)))
+                        ((= (get-x pix) n) (mod-x (- n y) (mod-y n pix)))
+                        ((= (get-y pix) 0) (mod-x n (mod-y x pix)))
+                        ((= (get-y pix) n) (mod-x 0 (mod-y x pix)))))))
+
 
 ; ejemplos
 (define pix (pixbit-d 4 3 1 1))
