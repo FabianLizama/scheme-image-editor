@@ -167,7 +167,7 @@
 ; Dominio: image X x1 (int) X y1 (int) X x2 (int) X y2 (int)
 ; Recorrido: image
 (define (crop pic x1 y1 x2 y2)
-  (image (+ (- x2 x1) 1) (+ (- y2 y1) 1) (myfilter condi (get-pixlist pic) x1 y1 x2 y2)))
+  (image (+ (- x2 x1) 1) (+ (- y2 y1) 1) (car (map (lambda (pix) (mod-y (- (get-y pix) y1) (mod-x (- (get-x pix) x1) pix))) (myfilter condi (get-pixlist pic) x1 y1 x2 y2)))))
 
 (define (myfilter condition list x1 y1 x2 y2)
   (if (null? list) null
@@ -177,7 +177,7 @@
           )))
 
 (define (condi pix x1 y1 x2 y2)
-  (if (and (and (and (>= (get-x pix) x1) (<= (get-x pix) x2)) (>= (get-y pix) y1)) (<= (get-y pix) y2)) #t #f))
+  (if (and (>= (get-x pix) x1) (<= (get-x pix) x2) (>= (get-y pix) y1) (<= (get-y pix) y2)) #t #f))
          
 (define (croppixel? pix)
   (if ((get-x)) #t #f))
@@ -244,10 +244,10 @@
 
 (define pix90 (lambda (n)
                 (lambda (pix)
-                  (cond ((= (get-x pix) 0) (mod-x (- n y) (mod-y 0 pix)))
-                        ((= (get-x pix) n) (mod-x (- n y) (mod-y n pix)))
-                        ((= (get-y pix) 0) (mod-x n (mod-y x pix)))
-                        ((= (get-y pix) n) (mod-x 0 (mod-y x pix)))))))
+                  (cond ((= (get-x pix) 0) (mod-x (- n (get-y pix)) (mod-y 0 pix)))
+                        ((= (get-x pix) n) (mod-x (- n (get-y pix)) (mod-y n pix)))
+                        ((= (get-y pix) 0) (mod-x n (mod-y (get-x pix) pix)))
+                        ((= (get-y pix) n) (mod-x 0 (mod-y (get-x pix) pix)))))))
 
 
 ; ejemplos
