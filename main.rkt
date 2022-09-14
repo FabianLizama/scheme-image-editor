@@ -78,6 +78,8 @@
 
 (define (image w h . l) (list -1 w h l))
 
+(define (image-list w h l) (list -1 w h l))
+
 ; Función que selecciona el ancho de una imagen
 ; Dominio: image Recorrido: Width (int)
 (define (get-w pic) (list-ref pic 1))
@@ -167,7 +169,7 @@
 ; Dominio: image X x1 (int) X y1 (int) X x2 (int) X y2 (int)
 ; Recorrido: image
 (define (crop pic x1 y1 x2 y2)
-  (image (+ (- x2 x1) 1) (+ (- y2 y1) 1) (car (map (lambda (pix) (mod-y (- (get-y pix) y1) (mod-x (- (get-x pix) x1) pix))) (myfilter condi (get-pixlist pic) x1 y1 x2 y2)))))
+  (image-list (+ (- x2 x1) 1) (+ (- y2 y1) 1) (map (lambda (pix) (mod-y (- (get-y pix) y1) (mod-x (- (get-x pix) x1) pix))) (myfilter condi (get-pixlist pic) x1 y1 x2 y2))))
 
 (define (myfilter condition list x1 y1 x2 y2)
   (if (null? list) null
@@ -179,8 +181,7 @@
 (define (condi pix x1 y1 x2 y2)
   (if (and (>= (get-x pix) x1) (<= (get-x pix) x2) (>= (get-y pix) y1) (<= (get-y pix) y2)) #t #f))
          
-(define (croppixel? pix)
-  (if ((get-x)) #t #f))
+
 
 (define (imgRGB->imgHex pic)
   (image (get-w pic) (get-h pic) (map pixrgb->pixhex (get-pixlist pic))))
@@ -240,14 +241,47 @@
 (define compareHex(lambda (hex1)
                      (lambda (elem)
                        (if (string=? hex1 (car elem)) #t #f))))
+
+
+; Función Rotate90
+
+
+
 ; Función que rota en 90° un pixel
 
-(define pix90 (lambda (n)
+(define rotate90 (lambda (pic) (recur-rotate90 pic pic '() (get-pixlist pic))))
+
+(define recur-rotate90 (lambda
+                         (root-image mod-image readypixs remainpixs)
+                         (cond ((null? remainpixs) (image-list (get-y root-image) (get-x root-image) readypixs))
+                               ((= 1 (len remainpixs)) (image-list (get-y root-image) (get-x root-image) (append readypixs remainpixs)))
+                             ((null? readypixs) (recur-rotate90
+                                                 root-image
+                                                 (crop mod-image 1 1 (- (get-x mod-image) 1) (- (get-y mod-image) 1))
+                                                 (map (pix90 (get-w mod-image) (get-h mod-image)) (filter (ring? (get-w mod-image) (get-h mod-image)) remainpixs))
+                                                 (filter (notring? (get-w mod-image) (get-h mod-image)) remainpixs)))
+                             (else (recur-rotate90
+                                                 root-image
+                                                 (crop mod-image 1 1 (- (get-x mod-image) 1) (- (get-y mod-image) 1))
+                                                 (append readypixs (map pixsum1 (map (pix90 (get-w mod-image) (get-h mod-image)) (filter (ring? (get-w mod-image) (get-h mod-image)) remainpixs))))
+                                                 (map pixsum1 (filter (notring? (get-w mod-image) (get-h mod-image)) remainpixs)))))))
+                                   
+(define pixsum1 (lambda (pix) (mod-x (+ 1 (get-x pix)) (mod-y (+ 1 (get-y pix)) pix))))
+                                   
+(define pix90 (lambda (w h)
                 (lambda (pix)
-                  (cond ((= (get-x pix) 0) (mod-x (- n (get-y pix)) (mod-y 0 pix)))
-                        ((= (get-x pix) n) (mod-x (- n (get-y pix)) (mod-y n pix)))
-                        ((= (get-y pix) 0) (mod-x n (mod-y (get-x pix) pix)))
-                        ((= (get-y pix) n) (mod-x 0 (mod-y (get-x pix) pix)))))))
+                  (cond ((= (get-x pix) 0) (mod-x (- (- h 1) (get-y pix)) (mod-y 0 pix)))
+                        ((= (get-x pix) (- w 1)) (mod-x (- (- h 1) (get-y pix)) (mod-y (- w 1) pix)))
+                        ((= (get-y pix) 0) (mod-x (- h 1) (mod-y (get-x pix) pix)))
+                        ((= (get-y pix) (- h 1)) (mod-x 0 (mod-y (get-x pix) pix)))))))
+
+(define ring? (lambda (w h)
+                (lambda (pix)
+                (if (or (= (get-x pix) 0) (= (get-y pix) 0) (= (get-x pix) (- w 1)) (= (get-y pix) (- h 1))) #t #f))))
+
+(define notring? (lambda (w h)
+                (lambda (pix)
+                (if (or (= (get-x pix) 0) (= (get-y pix) 0) (= (get-x pix) (- w 1)) (= (get-y pix) (- h 1))) #f #t))))
 
 
 ; ejemplos
