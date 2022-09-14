@@ -244,10 +244,9 @@
 
 
 ; Función Rotate90
-
-
-
 ; Función que rota en 90° un pixel
+; Dominio: image (pic)
+; Recorrido: image
 
 (define rotate90 (lambda (pic) (recur-rotate90 pic pic '() (get-pixlist pic))))
 
