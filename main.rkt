@@ -78,7 +78,7 @@
 
 (define (image w h . l) (list -1 w h l))
 
-(define (image-list w h l) (list -1 w h l))
+(define (image-list color w h l) (list color w h l))
 
 ; Función que selecciona el ancho de una imagen
 ; Dominio: image Recorrido: Width (int)
@@ -169,7 +169,7 @@
 ; Dominio: image X x1 (int) X y1 (int) X x2 (int) X y2 (int)
 ; Recorrido: image
 (define (crop pic x1 y1 x2 y2)
-  (image-list (+ (- x2 x1) 1) (+ (- y2 y1) 1) (map (lambda (pix) (mod-y (- (get-y pix) y1) (mod-x (- (get-x pix) x1) pix))) (myfilter condi (get-pixlist pic) x1 y1 x2 y2))))
+  (image-list -1 (+ (- x2 x1) 1) (+ (- y2 y1) 1) (map (lambda (pix) (mod-y (- (get-y pix) y1) (mod-x (- (get-x pix) x1) pix))) (myfilter condi (get-pixlist pic) x1 y1 x2 y2))))
 
 (define (myfilter condition list x1 y1 x2 y2)
   (if (null? list) null
@@ -245,28 +245,36 @@
 
 ; Función Rotate90
 ; Función que rota en 90° un pixel
+; Recursión de cola que va rotando los anillos de pixeles exteriores
 ; Dominio: image (pic)
 ; Recorrido: image
 
+; Llamada recursiva
 (define rotate90 (lambda (pic) (recur-rotate90 pic pic '() (get-pixlist pic))))
 
+
+; Función recursiva principal
 (define recur-rotate90 (lambda
                          (root-image mod-image readypixs remainpixs)
-                         (cond ((null? remainpixs) (image-list (get-y root-image) (get-x root-image) readypixs))
-                               ((= 1 (len remainpixs)) (image-list (get-y root-image) (get-x root-image) (append readypixs remainpixs)))
+                         (cond ((null? remainpixs) (image-list -1 (get-y root-image) (get-x root-image) readypixs))
+                             ((= 1 (len remainpixs)) (image-list -1 (get-y root-image) (get-x root-image) (append readypixs remainpixs))) ; Condiciones de borde (si la imagen es par o impar)
                              ((null? readypixs) (recur-rotate90
                                                  root-image
                                                  (crop mod-image 1 1 (- (get-x mod-image) 1) (- (get-y mod-image) 1))
                                                  (map (pix90 (get-w mod-image) (get-h mod-image)) (filter (ring? (get-w mod-image) (get-h mod-image)) remainpixs))
                                                  (filter (notring? (get-w mod-image) (get-h mod-image)) remainpixs)))
-                             (else (recur-rotate90
+                             
+                             (else (recur-rotate90     ; La recursión funciona con una lista de pixeles rotados y una lista de pixeles por rotar, esta para cuando ya no quedan pixeles por rotar
                                                  root-image
                                                  (crop mod-image 1 1 (- (get-x mod-image) 1) (- (get-y mod-image) 1))
                                                  (append readypixs (map pixsum1 (map (pix90 (get-w mod-image) (get-h mod-image)) (filter (ring? (get-w mod-image) (get-h mod-image)) remainpixs))))
                                                  (map pixsum1 (filter (notring? (get-w mod-image) (get-h mod-image)) remainpixs)))))))
-                                   
+
+
+; Función que suma 1 a los pixeles para recuperar las coordenadas originales después de aplicar el crop
 (define pixsum1 (lambda (pix) (mod-x (+ 1 (get-x pix)) (mod-y (+ 1 (get-y pix)) pix))))
-                                   
+
+; Función que rota el pixel en 90 grados dependiendo del ancho y largo de la imagen
 (define pix90 (lambda (w h)
                 (lambda (pix)
                   (cond ((= (get-x pix) 0) (mod-x (- (- h 1) (get-y pix)) (mod-y 0 pix)))
@@ -274,13 +282,43 @@
                         ((= (get-y pix) 0) (mod-x (- h 1) (mod-y (get-x pix) pix)))
                         ((= (get-y pix) (- h 1)) (mod-x 0 (mod-y (get-x pix) pix)))))))
 
+; Función que comprueba si un pixel es parte del anillo exterior de la imagen
 (define ring? (lambda (w h)
                 (lambda (pix)
                 (if (or (= (get-x pix) 0) (= (get-y pix) 0) (= (get-x pix) (- w 1)) (= (get-y pix) (- h 1))) #t #f))))
 
+; Función que comprueba si un pixel no es parte del anillo exterior de la imagen
 (define notring? (lambda (w h)
                 (lambda (pix)
                 (if (or (= (get-x pix) 0) (= (get-y pix) 0) (= (get-x pix) (- w 1)) (= (get-y pix) (- h 1))) #f #t))))
+
+
+; TDA image - compress
+; Función que comprime una imágen eliminando aquellos pixeles con el color más frecuente.
+; La imagen comprimida resultante solo se puede manipular con las otras funciones una vez que haya sido descomprimida con la función decompress.
+; Dominio: image     Recorrido: image
+
+(define compress (lambda (pic) (image-list (car (max-h pic)) (get-w pic) (get-h pic) (filter (diff-color? (car (max-h pic))) (get-pixlist pic)))))
+
+
+; Función que encuentra el color más frecuente de una imagen
+; Dominio: image
+; Recorrido: string X int
+(define max-h (lambda (pic)
+               (define max-rec (lambda (hist max)
+                                (if (null? hist)
+                                    max
+                                    (if (> (cdar hist) (cdr max))
+                                        (max-rec (cdr hist) (car hist))
+                                        (max-rec (cdr hist) max)))))
+                (max-rec (cdr (histogram pic)) (cadr (histogram pic)))))
+
+; Función que compara un color y un pixel para ver si son colores distintos
+; Dominio: string X [pixbit-d | pixrgb-d | pixhex-d]
+; Recorrido: bool
+(define diff-color? (lambda (color)
+                     (lambda (pix)
+                       (if (equal? (pix->hex pix) color) #f #t))))
 
 
 ; ejemplos
@@ -288,8 +326,8 @@
 (define pixh (pixhex-d 0 0 "#FFFFFF" 1))
 (define ejimageb (image 2 2 (pixbit-d  0 0 1 10) (pixbit-d  0 1 0 20) (pixbit-d 1 0 0 30) (pixbit-d 1 1 0 30)))
 (define ejimager (image 3 3
-                        (pixrgb-d 0 0 255 0 0 0) (pixrgb-d 0 1 0 0 0 0) (pixrgb-d 0 2 0 0 255 0)
-                        (pixrgb-d 1 0 255 0 0 1) (pixrgb-d 1 1 0 0 0 1) (pixrgb-d 1 2 0 0 255 1)
-                        (pixrgb-d 2 0 255 0 0 2) (pixrgb-d 2 1 0 0 0 2) (pixrgb-d 2 2 0 0 255 2)))
+                        (pixrgb-d 0 0 255 0 0 0) (pixrgb-d 0 1 255 0 0 0) (pixrgb-d 0 2 0 0 255 0)
+                        (pixrgb-d 1 0 255 0 0 1) (pixrgb-d 1 1 255 0 0 1) (pixrgb-d 1 2 0 0 255 1)
+                        (pixrgb-d 2 0 255 0 0 2) (pixrgb-d 2 1 255 0 0 2) (pixrgb-d 2 2 0 0 255 2)))
 
 (define ejimageh (image 1 1 (pixhex-d 1 1 "#FF0000" 1)))
