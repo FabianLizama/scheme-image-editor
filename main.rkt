@@ -169,7 +169,7 @@
 ; Dominio: image X x1 (int) X y1 (int) X x2 (int) X y2 (int)
 ; Recorrido: image
 (define (crop pic x1 y1 x2 y2)
-  (image-list -1 (+ (- x2 x1) 1) (+ (- y2 y1) 1) (map (lambda (pix) (mod-y (- (get-y pix) y1) (mod-x (- (get-x pix) x1) pix))) (myfilter condi (get-pixlist pic) x1 y1 x2 y2))))
+  (image-list (if (compressed? pic) (car pic) -1) (+ (- x2 x1) 1) (+ (- y2 y1) 1) (map (lambda (pix) (mod-y (- (get-y pix) y1) (mod-x (- (get-x pix) x1) pix))) (myfilter condi (get-pixlist pic) x1 y1 x2 y2))))
 
 (define (myfilter condition list x1 y1 x2 y2)
   (if (null? list) null
@@ -319,6 +319,24 @@
 (define diff-color? (lambda (color)
                      (lambda (pix)
                        (if (equal? (pix->hex pix) color) #f #t))))
+
+; TDA image - edit
+; Permite aplicar funciones especiales a las imágenes. Por ejemplo, para modificar colores en alguno de los canales, pasar a blanco y negro, etc.
+; Dominio: f X image
+; Recorrido: image
+
+(define edit (lambda (f pic)
+               (image-list -1 (get-w pic) (get-h pic) (map f (get-pixlist pic)))))
+
+; TDA image - invertColorBit
+; Función que permite obtener el valor del bit opuesto
+; Dominio: pixbit-d
+; Recorrido: pixbit-d
+
+(define invertColorBit (lambda (pix)
+                         (if (= 0 (get-bit pix))
+                             (pixbit-d (get-x pix) (get-y pix) 1 (get-d pix))
+                             (pixbit-d (get-x pix) (get-y pix) 0 (get-d pix)))))
 
 
 ; ejemplos
