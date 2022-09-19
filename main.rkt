@@ -350,6 +350,15 @@
                                    (- 255 (get-b pix))
                                    (get-d pix))))
 
+; TDA image - adjustChannel
+; Función que permite ajustar cualquier canal de una imagen con pixeles pixrgb-d, incluido el canal de profundidad d.
+; Se asume que la función que modificará el canal produce valores dentro del rango válido.
+; Dominio: f1 X f2 X f3 X pixrgb-d
+; Recorrido: pixrgb-d
+
+(define adjustChannel (lambda (f1 f2 f3) ;getR setR incCh
+                        (lambda (pix)
+                          (pixrgb-d (get-x pix) (get-y pix) )))
 
 
 ; ejemplos
