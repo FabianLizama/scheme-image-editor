@@ -338,6 +338,19 @@
                              (pixbit-d (get-x pix) (get-y pix) 1 (get-d pix))
                              (pixbit-d (get-x pix) (get-y pix) 0 (get-d pix)))))
 
+; TDA image - invertColorRGB
+; Función que permite obtener el color simétricamente
+; opuesto en cada canal dentro de un pixel.
+; Dominio: pixrgb-d   Rrcorrido: pixrgb-d
+
+(define invertColorRGB (lambda (pix)
+                         (pixrgb-d (get-x pix) (get-y pix)
+                                   (- 255 (get-r pix))
+                                   (- 255 (get-g pix))
+                                   (- 255 (get-b pix))
+                                   (get-d pix))))
+
+
 
 ; ejemplos
 (define pix (pixbit-d 4 3 1 1))
