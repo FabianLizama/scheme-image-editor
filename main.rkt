@@ -371,6 +371,12 @@
 ; Función que transforma una imagen a una representación string.
 ; La transformación depende de si la imagen es bitmap-d, hexmap-d o pixmap-d, para lo cual se pasa la función de transformación
 
+(define image->string (lambda (pic f)
+                        (define string-recur (lambda
+                                                 (pic str x y w h)
+                                                 (string-append str (f (filter ))))
+                        (string-append )))
+
 ; Función pixbit-d->string
 (define pixbit->string (lambda (pix) (number->string (get-bit pix))))
 
@@ -379,7 +385,6 @@
 
 ; Función pixhex->string
 (define pixhex->string (lambda (pix) (get-hex pix)))
-
 
 ; ejemplos
 (define pix (pixbit-d 4 3 1 1))
