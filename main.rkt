@@ -367,6 +367,19 @@
 (define incCh (lambda (color)
                        (if (< color 255) (+ color 1) color)))
 
+; TDA image - image->string
+; Función que transforma una imagen a una representación string.
+; La transformación depende de si la imagen es bitmap-d, hexmap-d o pixmap-d, para lo cual se pasa la función de transformación
+
+; Función pixbit-d->string
+(define pixbit->string (lambda (pix) (number->string (get-bit pix))))
+
+; Función pixrgb-d->string
+(define pixrgb->string (lambda (pix) (get-hex (pixrgb->pixhex pix))))
+
+; Función pixhex->string
+(define pixhex->string (lambda (pix) (get-hex pix)))
+
 
 ; ejemplos
 (define pix (pixbit-d 4 3 1 1))
