@@ -358,7 +358,11 @@
 
 (define adjustChannel (lambda (f1 f2 f3) ;getR setR incCh
                         (lambda (pix)
-                          (pixrgb-d (get-x pix) (get-y pix) )))
+                          (pixrgb-d (get-x pix) (get-y pix) ))))
+
+; Función incCh incrementa un canal rgb en uno
+; Dominio: int    Recorrido: int
+(define incCh (lambda (x) (+ x 1)))
 
 
 ; ejemplos
