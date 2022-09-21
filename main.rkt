@@ -27,6 +27,8 @@
 
 ; Funciones
 
+(define setR (lambda (r pix) (pixrgb-d (get-x pix) (get-y pix) r (get-g pix) (get-b pix) (get-d pix))))
+
 (define (get-bit pix) (list-ref pix 3))
 
 ; Esta función calcula el largo de una lista
@@ -356,15 +358,14 @@
 ; Dominio: f1 X f2 X f3 X pixrgb-d
 ; Recorrido: pixrgb-d
 
-(define adjustChannel (lambda (f1 f2 f3) ;getR setR incCh
+(define adjustChannel (lambda (sel mod f) ;getR setR incCh
                         (lambda (pix)
-                          (f2 (f3 (f1 pix)) (pix)))))
+                          (mod (f (sel pix)) pix))))
 
 ; Función incCh incrementa un canal rgb en uno
 ; Dominio: int    Recorrido: int
 (define incCh (lambda (color)
-                       (cond ((< color 255) (+ color 1))
-                             (else (color)))))
+                       (if (< color 255) (+ color 1) color)))
 
 
 ; ejemplos
