@@ -448,6 +448,7 @@
 
 
 
+
 ; ejemplos
 (define pix (pixbit-d 4 3 1 1))
 (define pixh (pixhex-d 0 0 "#FFFFFF" 1))
