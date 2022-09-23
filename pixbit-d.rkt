@@ -40,32 +40,11 @@
 ; Dominio: [pixbit-d | pixrgb-d | pixhex-d]        Recorrido: boolean
 (define pixbit-d? (lambda (pix) (if (= (car pix) 0) #t #f)))
 
-; Modificador - setY
-; Esta función modifica el valor y de un pixel
-; Dominio: int X [pixbit-d | pixrgb-d | pixhex-d]
-; Recorrido: [pixbit-d | pixrgb-d | pixhex-d]
-(define setY (lambda (y pix)
-               (cond ((pixbit-d? pix) (pixbit-d (getX pix) y (getBit pix) (getD pix)))
-                     ((pixrgb-d? pix) (pixrgb-d (getX pix) y (getR pix) (getG pix) (getB pix) (getD pix)))
-                     ((pixhex-d? pix) (pixhex-d (getX pix) y (getHex pix) (getD pix))))))
-; Modificador - setX
-; Esta función modifica el valor x de un pixel
-; Dominio: int X [pixbit-d | pixrgb-d | pixhex-d]
-; Recorrido: [pixbit-d | pixrgb-d | pixhex-d]
-(define setX (lambda (y pix)
-               (cond ((pixbit-d? pix) (pixbit-d x (getY pix) (getBit pix) (getD pix)))
-                     ((pixrgb-d? pix) (pixrgb-d x (getY pix) (getR pix) (getG pix) (getB pix) (getD pix)))
-                     ((pixhex-d? pix) (pixhex-d x (getY pix) (getHex pix) (getD pix))))))
 
 
-; Otras - pix->hex
-; Esta función obtiene el código hexadecimal de cualquier pixel
-; Dominio: [pixbit-d | pixrgb-d | pixhex-d]
-; Recorrido: string
-(define pix->hex (lambda (pix)
-                   (cond((pixbit-d? pix) (if (zero? (getBit pix)) "#000000" "#FFFFFF"))
-                        ((pixhex-d? pix) (getHex pix))
-                        ((pixrgb-d? pix) (getHex (pixrgb->pixhex pix))))))
+
+
+
 
 ; Otras - invertColorBit
 ; Función que permite invierte el valor del bit de un pixbit-d
