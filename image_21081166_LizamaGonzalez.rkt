@@ -1,8 +1,8 @@
 #lang scheme
 (provide (all-defined-out))
-(require "pixbit-d.rkt")
-(require "pixrgb-d.rkt")
-(require "pixhex-d.rkt")
+(require "pixbit-d_21081166_LizamaGonzález.rkt")
+(require "pixrgb-d_21081166_LizamaGonzález.rkt")
+(require "pixhex-d_21081166_LizamaGonzález.rkt")
 
 
 ; Funciones auxiliares
@@ -112,7 +112,7 @@
                 ; Recorrido: [pixbit-d | pixrgb-d | pixhex-d]
                 (define flipH-pix (lambda (pix w)
                                     (setX (abs (- (getX pix) (- w 1))) pix)))
-                (image (getW pic) (getH pic) ; Se define el mismo largo y ancho de la imagen original
+                (image-list -1 (getW pic) (getH pic) ; Se define el mismo largo y ancho de la imagen original
                        (recur-flip flipH-pix (get-pixlist pic) (getW pic))))) ; Invierte la coordenada "x" de cada pixel de la lista de pixeles
 
 
@@ -131,7 +131,7 @@
                 ; Recorrido: [pixbit-d | pixrgb-d | pixhex-d]
                 (define flipV-pix (lambda (pix w)
                                     (setY (abs (- (getY pix) (- w 1))) pix)))
-                (image (getW pic) (getH pic) ; Se define el mismo largo y ancho de la imagen original
+                (image-list -1 (getW pic) (getH pic) ; Se define el mismo largo y ancho de la imagen original
                        (recur-flip flipV-pix (get-pixlist pic) (getW pic))))) ; Invierte la coordenada "x" de cada pixel de la lista de pixeles
 
 ; Modificador - crop: Recortar una imagen a partir de un cuadrante
@@ -285,7 +285,11 @@
                                                                                                       (if (and (= (getX pix) x) (= (getY pix) y)) #t #f))) x y w h) (get-pixlist pic)))) "\t"))
                                                                    (+ x 1) y w h)))))
                         ; La llamada recursiva inicial parte con un string vacío y en las coordenadas (0, 0)
-                        (string-recur pic "" 0 0 (getW pic) (getH pic))))
+                        (string-recur pic "" -1 -1 (getW pic) (getH pic))))
+(image->string (image 3 3 (pixrgb-d 0 0 255 0 0 0) (pixrgb-d 1 0 0 255 0 0) (pixrgb-d 2 0 0 0 255 0)
+           (pixrgb-d 1 0 255 0 0 1) (pixrgb-d 1 1 0 255 0 1) (pixrgb-d 1 2 0 0 255 1)
+           (pixrgb-d 2 0 255 0 0 2) (pixrgb-d 2 1 0 255 0 1) (pixrgb-d 2 2 0 0 255 2)) pixrgb->string)
+
 
 ; TDA image - depthLayers
 ; Función que permite separar una imagen en capas en base a la profundidad en que se sitúan los pixeles.

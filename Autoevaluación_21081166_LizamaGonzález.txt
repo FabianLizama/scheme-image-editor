@@ -1,0 +1,34 @@
+Requerimientos No Funcionales:
+1. Autoevaluación: 1 Implementación completa sin problemas
+2. Lenguaje: 1 Implementación completa sin problemas
+3. Versión: 1 Implementación completa sin problemas
+4. Standard: 1 Implementación completa sin problemas
+5. No variables: 1 Implementación completa sin problemas
+6. Documentación: 0.75 No se detalla el algoritmo utilizado en algunas funciones
+7. Dom->Rec: 1 Implementación completa sin problemas
+8. Organización: 1 Implementación completa sin problemas
+9. Historial: 1 Implementación completa sin problemas
+10. Script de pruebas: 1 Implementación completa sin problemas
+11. Prerrequisitos: 1 Implementación completa sin problemas
+
+Requerimientos Funcionales:
+1. TDAs: 1 Implementación completa sin problemas
+2. TDA image - constructor: 1 Implementación completa sin problemas
+3. TDA image - bitmap?: 1 Implementación completa sin problemas
+4. TDA image - pixmap?: 1 Implementación completa sin problemas
+5. TDA image - hexmap?: 1 Implementación completa sin problemas
+6. TDA image - compressed?: 1 Implementación completa sin problemas
+7. TDA image - flipH: 1 Implementación completa sin problemas
+8. TDA image - flipV: 1 Implementación completa sin problemas
+9. TDA image - crop: 1 Implementación completa sin problemas
+10. TDA image - imgRGB->imgHex: 1 Implementación completa sin problemas
+11. TDA image - histogram: 1 Implementación completa sin problemas
+12. TDA image - rotate90: 1 Implementación completa sin problemas
+13. TDA image - compress: 1 Implementación completa sin problemas
+14. TDA image - edit: 1 Implementación completa sin problemas
+15. TDA image - invertColorBit: 1 Implementación completa sin problemas
+16. TDA image - invertColorRGB: 1 Implementación completa sin problemas
+17. TDA image - adjustChannel: 1 Implementación completa sin problemas
+18. TDA image - image->string: 0.75 A veces no funciona si los pixeles no están ordenados
+19. TDA image - depthLayers: 1 Implementación completa sin problemas
+20. TDA image - decompress: 0.75 Se pierde la información de profundidad de los pixeles en el proceso

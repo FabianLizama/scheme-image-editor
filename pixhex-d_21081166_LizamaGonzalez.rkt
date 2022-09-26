@@ -1,6 +1,6 @@
 #lang scheme
 (provide (all-defined-out))
-(require "pixbit-d.rkt")
+(require "pixbit-d_21081166_LizamaGonzález.rkt")
 
 ; TDA pixhex-d
 
