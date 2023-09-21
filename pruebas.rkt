@@ -1,8 +1,8 @@
 #lang scheme
-(require "pixbit-d_21081166_LizamaGonzález.rkt")
-(require "pixrgb-d_21081166_LizamaGonzález.rkt")
-(require "pixhex-d_21081166_LizamaGonzález.rkt")
-(require "image_21081166_LizamaGonzález.rkt")
+(require "pixbit-d.rkt")
+(require "pixrgb-d.rkt")
+(require "pixhex-d.rkt")
+(require "image.rkt")
 
 
 ; Script de pruebas
