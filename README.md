@@ -2,7 +2,7 @@
 
 ## Introducción
 
-Editor abstracto de imágenes en 3 dimensiones.
+Editor abstracto de imágenes en 3 dimensiones para la asignatura Paradigmas de Programación de la Universidad de Santiago de Chile.
 
 El objetivo de este proyecto es proporcionar una serie de funciones que permiten realizar diversas operaciones en imágenes abstractas a un nivel muy bajo, sin una interfaz gráfica, y utilizando programación funcional.
 
